@@ -45,8 +45,14 @@ func main() {
 	case "-c":
 		printBytes(args[1], file)
 	case "-l":
-		printLines(string(args[1]), file)
+		printLines(args[1], file)
+	case "-w":
+		printWords(args[1], file)
 	}
+}
+
+func printWords(filename string, file []byte) {
+	fmt.Printf("%v %v", len(strings.Split(string(file), " ")), filename)
 }
 
 func printBytes(filename string, b []byte) {
