@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -20,25 +21,38 @@ func main() {
 		log.Fatal("missing arguments, please check command")
 	}
 
-	file, err := os.Open(args[1])
+	file, err := os.ReadFile(args[1])
+	// file, err := os.Open(args[1])
 
-	if err != nil {
-		log.Fatal("could not open file")
-	}
+	// if err != nil {
+	// 	log.Fatal("could not open file")
+	// }
 
-	data := make([]byte, 1024)
-	n, err := file.Read(data)
+	// data := make([]byte, 1024)
+	// n, err := file.Read(data)
 
 	if err != nil {
 		log.Fatal("could not read file")
 	}
 
+	// argsMap := map[string]interface{}{
+	// 	"-c": func(string, int)printBytes(args[1], n),
+	// }
+
+	// argsMap := map[string]func(string, string)
+
 	switch args[0] {
 	case "-c":
-		getBytes(args[1], n)
+		printBytes(args[1], file)
+	case "-l":
+		printLines(string(args[1]), file)
 	}
 }
 
-func getBytes(f string, n int) {
-	fmt.Printf("%v %v", n, f)
+func printBytes(filename string, b []byte) {
+	fmt.Printf("%v %v", len(b), filename)
+}
+
+func printLines(filename string, b []byte) {
+	fmt.Printf("%v %v", len(strings.Split(string(b), "\n")), filename)
 }
