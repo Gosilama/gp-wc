@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"unicode/utf8"
 )
 
 func main() {
@@ -17,11 +18,16 @@ func main() {
 	// 	log.Fatal("unrecognized command")
 	// }
 
+	var filename string
+	var cmd string
 	if len(args) < 2 {
-		log.Fatal("missing arguments, please check command")
+		filename = args[0]
+	} else {
+		filename = args[1]
+		cmd = args[0]
 	}
 
-	file, err := os.ReadFile(args[1])
+	file, err := os.ReadFile(filename)
 	// file, err := os.Open(args[1])
 
 	// if err != nil {
@@ -41,13 +47,17 @@ func main() {
 
 	// argsMap := map[string]func(string, string)
 
-	switch args[0] {
+	switch cmd {
 	case "-c":
 		printBytes(args[1], file)
 	case "-l":
 		printLines(args[1], file)
 	case "-w":
 		printWords(args[1], file)
+	case "-m":
+		printCharacters(args[1], file)
+	default:
+		fmt.Printf("%v %v %v %v", len(strings.Split(string(file), "\n")), len(strings.Split(string(file), " ")), len(file), filename)
 	}
 }
 
@@ -61,4 +71,12 @@ func printBytes(filename string, b []byte) {
 
 func printLines(filename string, b []byte) {
 	fmt.Printf("%v %v", len(strings.Split(string(b), "\n")), filename)
+}
+
+func printCharacters(filename string, b []byte) {
+	if utf8.Valid(b) {
+		fmt.Printf("%v %v", len(strings.Split(string(b), "")), filename)
+	} else {
+		printBytes(filename, b)
+	}
 }
