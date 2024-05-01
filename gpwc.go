@@ -1,12 +1,16 @@
 package main
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 	"unicode/utf8"
 )
+
+type wcFunc func(string, []byte)
 
 func main() {
 	if len(os.Args) == 1 {
@@ -17,17 +21,33 @@ func main() {
 	// if args[0] != "ccwc" {
 	// 	log.Fatal("unrecognized command")
 	// }
+	argsMap := map[string]wcFunc{
+		"-c": printBytes,
+		"-l": printLines,
+		"-w": printWords,
+		"-m": printCharacters,
+	}
 
 	var filename string
 	var cmd string
+	var file []byte
+	var err error
+
 	if len(args) < 2 {
-		filename = args[0]
+		if argsMap[args[0]] != nil {
+			file, err = reader()
+			filename = ""
+			cmd = args[0]
+		} else {
+			filename = args[0]
+			file, err = os.ReadFile(filename)
+		}
 	} else {
 		filename = args[1]
+		file, err = os.ReadFile(filename)
 		cmd = args[0]
 	}
 
-	file, err := os.ReadFile(filename)
 	// file, err := os.Open(args[1])
 
 	// if err != nil {
@@ -41,22 +61,9 @@ func main() {
 		log.Fatal("could not read file")
 	}
 
-	// argsMap := map[string]interface{}{
-	// 	"-c": func(string, int)printBytes(args[1], n),
-	// }
-
-	// argsMap := map[string]func(string, string)
-
-	switch cmd {
-	case "-c":
-		printBytes(args[1], file)
-	case "-l":
-		printLines(args[1], file)
-	case "-w":
-		printWords(args[1], file)
-	case "-m":
-		printCharacters(args[1], file)
-	default:
+	if argsMap[cmd] != nil {
+		argsMap[cmd](filename, file)
+	} else {
 		fmt.Printf("%v %v %v %v", len(strings.Split(string(file), "\n")), len(strings.Split(string(file), " ")), len(file), filename)
 	}
 }
@@ -79,4 +86,25 @@ func printCharacters(filename string, b []byte) {
 	} else {
 		printBytes(filename, b)
 	}
+}
+
+func reader() ([]byte, error) {
+	var bb bytes.Buffer
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for scanner.Scan() {
+		text := scanner.Bytes()
+
+		if len(text) < 0 {
+			break
+		}
+
+		bb.Write(text)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return bb.Bytes(), nil
 }
