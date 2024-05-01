@@ -48,15 +48,6 @@ func main() {
 		cmd = args[0]
 	}
 
-	// file, err := os.Open(args[1])
-
-	// if err != nil {
-	// 	log.Fatal("could not open file")
-	// }
-
-	// data := make([]byte, 1024)
-	// n, err := file.Read(data)
-
 	if err != nil {
 		log.Fatal("could not read file")
 	}
